@@ -8,7 +8,7 @@ const createBranchService = async (branch) => {
       const { error } = branchSchema.branchSchema.validate(branch, { abortEarly: false });
       if (error) {
           // Nếu có lỗi sẽ trả về tất cả lỗi
-          throw new ApiError(StatusCodes.UNAUTHORIZED, error.details.map(err => err.message));
+          throw new ApiError(StatusCodes.BAD_REQUEST, error.details.map(err => err.message));
       }
       const newBranch = await BranchModel.create(branch)
 

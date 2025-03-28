@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const typePlayerNumberSchema = mongoose.Schema({
+const typeFieldSchema = mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -10,11 +10,15 @@ const typePlayerNumberSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    deletedAt:{
+        type: Date,
+        default:null
+    }
 }, {
     timestamps: true,
     versionKey: false
 })
 
-const TypePlayerNumberModel = mongoose.model('type_player_numbers', typePlayerNumberSchema)
+const TypeFieldModel = mongoose.model('type_fields', typeFieldSchema)
 
-export default TypePlayerNumberModel
+export default TypeFieldModel
