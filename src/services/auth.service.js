@@ -40,6 +40,7 @@ const registerService = async (newUser) => {
 }
 
 const loginService = async (loginData) => {
+    
     //lấy schemma để validate
     const { error } = authSchema.loginSchema.validate(loginData, { abortEarly: false });
     if (error) {

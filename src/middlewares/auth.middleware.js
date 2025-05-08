@@ -16,7 +16,7 @@ const checkAuth =  catchAsync( async(req,res,next) => {
 
     try {
         const decoded = jwt.verify(token, config.ACCESS_TOKEN_KEY);
-
+        
         const user = await UserModel.findById(decoded.id);
         if (!user) {
             throw new ApiError(StatusCodes.UNAUTHORIZED, "Người dùng không tồn tại");

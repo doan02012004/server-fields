@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import router from './routes/v1/index.js'
 import ApiError from './utils/ApiError.js'
 import { errorHandler } from './middlewares/errorHandler.middleware.js'
@@ -8,18 +9,16 @@ import { config } from './configs/app.config.js'
 
 const app = express()
 
-
-app.use(express.json())
-
-app.use(express.urlencoded({
-    extended:true
-}))
 app.use(cors({
   origin: config.DOMAIN_ORIGIN,
   credentials: true,
 }))
 
-
+app.use(express.json())
+app.use(cookieParser())
+app.use(express.urlencoded({
+    extended:true
+}))
 
 app.use('/api/v1', router)
 

@@ -5,6 +5,7 @@ import uploadRoute from './upload.route.js'
 import branchRoute from './branch.route.js'
 import fieldRoute from './field.route.js'
 import typeFieldRoute from './typeField.route.js'
+import orderFieldRoute from './orderField.route.js'
 
 const router = express.Router();
 
@@ -32,6 +33,10 @@ const defaultRoutes = [
    {
       path: '/type-fields',
       route: typeFieldRoute
+   },
+   {
+      path: '/order-field',
+      route: orderFieldRoute
    },
 ];
 

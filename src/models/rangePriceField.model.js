@@ -12,14 +12,10 @@ const rangePriceFieldSchema = mongoose.Schema({
         required: true,
         ref: 'fields'
     },
-    startDayInWeek: {
+    dayInWeek:[{
         type: Number,
         required: true
-    },
-    endDayInWeek: {
-        type: Number,
-        required: true
-    },
+    }],
     startTime: {
         type: Number,
         required: true

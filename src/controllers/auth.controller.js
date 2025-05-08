@@ -9,7 +9,8 @@ const registerController = catchAsync(async (req, res) => {
     const user = await authService.registerService(req.body)
 
     return res.status(StatusCodes.CREATED).json({
-        user
+        success:true,
+        data:user
     })
 })
 
@@ -17,7 +18,7 @@ const registerController = catchAsync(async (req, res) => {
 // đăng nhập tài khoản
 const loginController = catchAsync(async (req, res) => {
     const result = await authService.loginService(req.body)
-    res.cookie('refeshToken', result.refreshToken, {
+    res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
@@ -33,7 +34,7 @@ const loginController = catchAsync(async (req, res) => {
 })
 
 export const requestRefreshToken = catchAsync(async (req, res) => {
-    const refreshToken = req.cookies.refeshToken;
+    const refreshToken = req.cookies.refreshToken;
     const accessToken = req.cookies.accessToken;
     const result = await authService.requestRefreshTokenService(accessToken, refreshToken)
     res.cookie('accessToken', result.accessToken, {
@@ -43,7 +44,8 @@ export const requestRefreshToken = catchAsync(async (req, res) => {
         maxAge: 30 * 24 * 60 * 60 * 1000
     })
     return res.status(StatusCodes.OK).json({
-        success:true
+        success:true,
+        accessToken: result.accessToken
     })
 })
 

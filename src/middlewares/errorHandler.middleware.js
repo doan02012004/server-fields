@@ -9,6 +9,7 @@ export const errorHandler =  (err, req, res, next) =>{
    // tạo ra 1 biến responseError 
    const responseError = {
     statusCode:err.statusCode,
+    success:false,
     message:err.message || StatusCodes[err.statusCode],
     stack:err.stack
    }

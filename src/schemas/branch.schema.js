@@ -16,6 +16,11 @@ const branchSchema = Joi.object({
         endTime:  Joi.number().min(0).max(1440),
         title:Joi.string().required().trim(),
     }),
+    selectTimes: Joi.array().items(Joi.object({
+        text:Joi.string().required(),
+        startTime:Joi.number().required(),
+        endTime:Joi.number().required(),
+    })),
     rate: Joi.number().optional(),
 })
 

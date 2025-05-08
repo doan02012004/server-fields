@@ -38,9 +38,19 @@ const UpdateFieldByIdController = catchAsync(async(req,res) => {
     })
 })
 
+const getAllOrderFieldByDateController = catchAsync(async(req,res) => {
+    const {branchId, date } = req.query
+    const result = await fieldService.getAllOrderFieldByDateService(branchId, date)
+    return res.status(StatusCodes.OK).json({
+        success: true,
+        data: result
+    })
+})
+
 export default {
     createFieldController,
     getAllFieldController,
     getFieldByIdController,
-    UpdateFieldByIdController
+    UpdateFieldByIdController,
+    getAllOrderFieldByDateController
 }

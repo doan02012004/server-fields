@@ -7,4 +7,5 @@ fieldRoute.post('/',fieldController.createFieldController)
 fieldRoute.get('/',fieldController.getAllFieldController)
 fieldRoute.get('/details/:id',fieldController.getFieldByIdController)
 fieldRoute.put('/update/:id',fieldController.UpdateFieldByIdController)
+fieldRoute.get('/date-booking',fieldController.getAllOrderFieldByDateController)
 export default fieldRoute

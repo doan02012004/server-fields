@@ -3,6 +3,7 @@ import FieldModel from "../models/field.model.js"
 import ApiError from "../utils/ApiError.js"
 import RangePriceFieldModel from "../models/rangePriceField.model.js"
 import mongoose from "mongoose"
+import OrderFieldModel from "../models/order.model.js"
 
 const createFieldService = async (data) => {
     const field = await FieldModel.create(data)
@@ -129,9 +130,40 @@ const updateFieldService = async (id,data) => {
     }
 }
 
+const getAllOrderFieldByDateService = async (branchId, date) => {
+    let startDate, endDate;
+
+    if (date) {
+        // Trường hợp có ngày cụ thể
+        startDate = new Date(`${date}T00:00:00.000Z`);
+        endDate = new Date(`${date}T23:59:59.999Z`);
+    } else {
+        // Trường hợp không có ngày: lấy từ hôm nay đến 7 ngày sau
+        startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6); // +6 vì đã tính cả ngày hiện tại
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    const ordersInDate = await OrderFieldModel.find({
+        branchId,
+        dayBookings: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    })
+    .populate('branchId fieldId timeId')
+    .populate('userId','name');
+
+    return ordersInDate;
+}
+
 export default {
     createFieldService,
     getAllFieldService,
     getFieldByIdService,
-    updateFieldService
+    updateFieldService,
+    getAllOrderFieldByDateService
 }

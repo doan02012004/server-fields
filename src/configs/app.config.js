@@ -10,10 +10,14 @@ const appConfig = () => ({
     ACCESS_TOKEN_TIME: getEnv("ACCESS_TOKEN_TIME", "5m"),
     REFRESH_TOKEN_KEY: getEnv("REFRESH_TOKEN_KEY", "key_refresh"),
     REFRESH_TOKEN_TIME: getEnv("REFRESH_TOKEN_TIME", "7d"),
-    CLOUDINARY_CLOUD_NAME:getEnv("CLOUDINARY_CLOUD_NAME", "name"),
+    CLOUDINARY_CLOUD_NAME: getEnv("CLOUDINARY_CLOUD_NAME", "name"),
     CLOUDINARY_API_KEY: getEnv("CLOUDINARY_API_KEY", "key"),
-    CLOUDINARY_API_SECRET: getEnv("CLOUDINARY_API_SECRET", "secret")
-
+    CLOUDINARY_API_SECRET: getEnv("CLOUDINARY_API_SECRET", "secret"),
+    PRESENT_ORDER: 30,
+    VNP_TMN_CODE: getEnv("VNP_TMN_CODE", "YOUR_TMN_CODE"),
+    VNP_HASH_SECRET: getEnv("VNP_HASH_SECRET", "YOUR_HASH_SECRET"),
+    VNP_URL: getEnv("VNP_URL", "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"),
+    VNP_RETURN_URL: getEnv("VNP_RETURN_URL", "http://localhost:3000/payment-result"),
 });
 
 export const config = appConfig();

@@ -3,8 +3,7 @@ import Joi from "joi"
 const rangePrice = Joi.object({
     name: Joi.string().required().trim(),
     fieldId: Joi.string().optional(),
-    startDayInWeek: Joi.number().min(0).required(),
-    endDayInWeek: Joi.number().min(0).required(),
+    dayInWeek: Joi.array().items(Joi.number()).min(1),
     startTime: Joi.number().min(0).max(1440).required(),
     endTime: Joi.number().min(0).max(1440).required(),
     title: Joi.string().min(1).required(),
