@@ -10,7 +10,8 @@ const createBranchController = catchAsync(async (req, res) => {
 })
 
 const getAllBranchController = catchAsync(async (req, res) => {
-    const branchs = await branchService.getAllBranchService()
+    const {status} = req.query
+    const branchs = await branchService.getAllBranchService(status)
     return res.status(StatusCodes.CREATED).json({
         branchs
     })

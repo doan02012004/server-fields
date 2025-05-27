@@ -14,7 +14,6 @@ const fieldSchema = Joi.object({
     name: Joi.string().required().trim().min(3),
     slug: Joi.string().required().trim(),
     branchId: Joi.string().required().trim(),
-    typeFields: Joi.array().items(Joi.string().required()),
     images: Joi.array().items(Joi.string().required()),
     description: Joi.string().required().trim(),
     status: Joi.boolean().optional(),

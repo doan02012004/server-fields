@@ -15,10 +15,13 @@ const createFieldController = async (req, res, next) => {
 }
 
 const getAllFieldController = catchAsync(async(req,res) => {
-    const fields = await fieldService.getAllFieldService()
+    const { page, limit } = req.query
+    const pageNumber = parseInt(page) || 1
+    const limitNumber = parseInt(limit) || 10
+    const fields = await fieldService.getAllFieldService(pageNumber,limitNumber)
     return  res.status(StatusCodes.OK).json({
         success: true,
-        data:fields
+       ...fields
     })
 })
 
@@ -47,10 +50,18 @@ const getAllOrderFieldByDateController = catchAsync(async(req,res) => {
     })
 })
 
+const removeFieldByIdController = catchAsync(async(req,res) => {
+    const field = await fieldService.removeFieldByIdService(req.params.id)
+    return  res.status(StatusCodes.OK).json({
+        success: true,
+        data:field
+    })
+})
 export default {
     createFieldController,
     getAllFieldController,
     getFieldByIdController,
     UpdateFieldByIdController,
-    getAllOrderFieldByDateController
+    getAllOrderFieldByDateController,
+    removeFieldByIdController
 }

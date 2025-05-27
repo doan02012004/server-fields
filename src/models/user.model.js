@@ -32,14 +32,19 @@ const userSchema = mongoose.Schema({
         type:Date,
         required:true
     },
-    active:{
-        type:Boolean,
-        default:true
+    status:{
+        type:String,
+        enum:['active','inactive'],
+        default:'active'
     },
     role:{
         type:String,
         enum:['user','admin'],
         default:'user'
+    },
+    deletedAt:{
+        type:Date,
+        default:null
     }
 },{
     timestamps:true,

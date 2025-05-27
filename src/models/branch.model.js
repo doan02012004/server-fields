@@ -32,6 +32,11 @@ const branchSchema = mongoose.Schema({
         required: true,
         trim: true
     },
+    district: {
+        type: String,
+        required: true,
+        trim: true
+    },
     ward: {
         type: String,
         required: true,
@@ -48,7 +53,7 @@ const branchSchema = mongoose.Schema({
     },
     status: {
         type: Boolean,
-        default: true
+        default: false
     },
     timeActive: {
         startTime: {
@@ -68,7 +73,11 @@ const branchSchema = mongoose.Schema({
     rate:{
         type:Number,
         default:0
-    }
+    },
+    deletedAt:{
+        type:Date,
+        default:null
+    },
 }, {
     timestamps: true,
     versionKey: false

@@ -36,7 +36,8 @@ const getCheckoutOrderFieldService = async (fieldId, date, dayNumber, timeId) =>
     const field = await FieldModel.aggregate([
         {
             $match: {
-                _id: newfieldId
+                _id: newfieldId,
+                deletedAt: null
             }
         },
         {
@@ -288,7 +289,7 @@ const GetVnpayIpnService = async (req) => {
     const query = {
         deletedAt: null
     }
-    if (status) {
+    if (status && status !=='all') {
         query['statusBooking'] = status
     }
     const skip = (page - 1) * limit
@@ -356,11 +357,16 @@ const updateStatusOrderFieldService = async (id, status) => {
     return order
 }
 
-const getAllOrderFieldByUserIdService = async (page,limit,userId) => {
+const getAllOrderFieldByUserIdService = async (page,limit,userId,statusBooking) => {
     const skip = (page - 1) * limit
     const query = {
         userId: userId,
-        deletedAt: null
+        deletedAt: null,
+        statusBooking: { $ne: 'unpaid' }
+    }
+
+    if(statusBooking !== "all"){
+        query['statusBooking'] = statusBooking
     }
 
     const orders = await OrderFieldModel.find(query)

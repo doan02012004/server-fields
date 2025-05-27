@@ -20,6 +20,7 @@ orderFieldRoute.put('/admin/update-status/:id', orderFieldController.UpdateStatu
 // web
 orderFieldRoute.get('/web/detail/:orderCode', orderFieldController.GetOrderFieldByOrderCodeController);
 orderFieldRoute.get('/web',checkAuth, orderFieldController.GetAllOrderFieldByUserIdController);
+orderFieldRoute.get('/web/date-list',checkAuth, orderFieldController.getFutureOrdersByUserController);
 orderFieldRoute.put('/web/update-status/:id', checkAuth, orderFieldController.UpdateStatusOrderFieldController);
 
 export default orderFieldRoute

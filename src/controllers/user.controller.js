@@ -22,7 +22,39 @@ const getAllUserController  = catchAsync(async(req,res) => {
       ...result
     })
 })
+
+const getUserByIdController = catchAsync(async(req,res) => {
+    const userId = req.params.userId
+
+    const user = await userService.getUserByIdService(userId) 
+    return res.status(StatusCodes.OK).json({
+        success:true,
+        data:user
+      })
+})
+
+const updateUserByIdController = catchAsync(async(req,res) => {
+    const userId = req.params.userId
+     const {status,name,email,phoneNumber,gender} = req.body
+    const user = await userService.updateUserByIdService(userId,{status,name,email,phoneNumber,gender}) 
+    return res.status(StatusCodes.OK).json({
+        success:true,
+        data:user
+      })
+})
+
+const removeUserByIdController = catchAsync(async(req,res) => {
+    const userId = req.params.userId
+    const user = await userService.removeUserByIdService(userId) 
+    return res.status(StatusCodes.OK).json({
+        success:true,
+        data:user
+      })
+})
 export default {
     getMeController,
-    getAllUserController
+    getAllUserController,
+    getUserByIdController,
+    updateUserByIdController,
+    removeUserByIdController
 }

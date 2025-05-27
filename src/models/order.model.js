@@ -52,6 +52,10 @@ const orderFieldSchema = mongoose.Schema({
         type:String,
         enum:['unpaid','pending','confirmed','completed','canceled','refund','refunded'],
         default:'unpaid'
+    },
+    isRating: {
+        type:Boolean,
+        default:false
     }
 }, {
     timestamps: true,

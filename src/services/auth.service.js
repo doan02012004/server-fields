@@ -140,8 +140,31 @@ const generateRefreshToken = (user) => {
 }
 
 
+const changePasswordService = async(userId, currentPassword,newPassword) => {
+    const existUser = await UserModel.findById(userId);
+    if (!existUser) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Người dùng này không tồn tại");
+    }
+
+    const isPasswordMatch = await bcrypt.compare(currentPassword, existUser.password);
+    if (!isPasswordMatch) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Mật khẩu hiện tại không đúng");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    existUser.password = hashedPassword;
+    await existUser.save();
+    
+    return {
+        message: "Đổi mật khẩu thành công"
+    };
+
+}
+
 export default {
     registerService,
     loginService,
-    requestRefreshTokenService
+    requestRefreshTokenService,
+    changePasswordService
 }

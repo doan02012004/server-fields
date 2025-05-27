@@ -9,21 +9,31 @@ import RangePriceFieldModel from "../models/rangePriceField.model.js";
 import getPrice from "../utils/get-price-field.js";
 import SelectedTimeBranchModel from "../models/selectedTimeBranch.model.js";
 import OrderFieldModel from "../models/order.model.js";
+import slugify from "../utils/slugify.js";
 
 const createBranchService = async (branch) => {
+    const rebranch = {
+        ...branch,
+        slug: slugify(branch.name),
+        timeActive: {
+            ...branch.timeActive,
+            title: `${generateTextByMinutes(branch.timeActive.startTime)} - ${generateTextByMinutes(branch.timeActive.endTime)}`
+        }
+    }
     //lấy schemma để validate
-    const { error } = branchSchema.branchSchema.validate(branch, { abortEarly: false });
+    const { error } = branchSchema.branchSchema.validate(rebranch, { abortEarly: false });
     if (error) {
         // Nếu có lỗi sẽ trả về tất cả lỗi
         throw new ApiError(StatusCodes.BAD_REQUEST, error.details.map(err => err.message));
     }
-    const newBranch = await BranchModel.create(branch)
+
+    const newBranch = await BranchModel.create(rebranch)
     if (!newBranch) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Tạo cơ sở thất bại')
     }
     let selectTimesRes = []
-    for (const rangeTime of branch.selectTimes) {
-        const newRangeTime = { ...rangeTime, branchId: newBranch._id }
+    for (const rangeTime of rebranch.selectTimes) {
+        const newRangeTime = { ...rangeTime, _id: undefined, branchId: newBranch._id }
         const range = await SelectedTimeBranchModel.create(newRangeTime)
         if (!range) {
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Tạo khoảng thời gian cơ sở thất bại')
@@ -38,8 +48,12 @@ const createBranchService = async (branch) => {
     }
 }
 
-const getAllBranchService = async () => {
-    const branchs = await BranchModel.find()
+const getAllBranchService = async (status) => {
+    let query = {}
+    if (status) {
+        query['status'] = status
+    }
+    const branchs = await BranchModel.find(query)
     return branchs
 }
 
@@ -59,11 +73,29 @@ const getBranchByIdService = async (id) => {
 }
 
 const updateBranchService = async (newBranch) => {
-    const branch = await BranchModel.findByIdAndUpdate(newBranch._id, newBranch, { new: true })
+    const branch = await BranchModel.findById(newBranch._id)
     if (!branch) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Cơ sở này không tồn tại');
     }
-    // B1: Lấy tất cả tags hiện có (chưa bị xóa mềm)
+
+    if (branch.status == false && newBranch.status == true) {
+        const existField = await FieldModel.findOne({ branchId: branch._id,deletedAt: null })
+        if (!existField) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Cơ sở này chưa có sân nào để hoạt động');
+        }
+    }
+
+    branch.set({
+        ...newBranch,
+        slug: slugify(newBranch.name),
+        timeActive: {
+            ...newBranch.timeActive,
+            title: `${generateTextByMinutes(newBranch.timeActive.startTime)} - ${generateTextByMinutes(newBranch.timeActive.endTime)}`
+        }
+    });
+
+    await branch.save();
+    // B1: Lấy tất cả thời gian hiện có (chưa bị xóa mềm)
     const existSelectTimes = await SelectedTimeBranchModel.find({ branchId: newBranch._id, deletedAt: null });
     const existingSelectTimeIds = existSelectTimes.map(selectTime => selectTime._id.toString());
 
@@ -114,7 +146,7 @@ const updateBranchService = async (newBranch) => {
 
 const getBranchBySlugViewWebService = async (branchSlug, selectedFieldId, selectedDate, selectedTimeId) => {
     // get Field
-    const branch = await BranchModel.findOne({ slug: branchSlug })
+    const branch = await BranchModel.findOne({ slug: branchSlug, status: true, deletedAt: null })
     if (!branch) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Cơ sở không tồn tại')
     }
@@ -131,7 +163,7 @@ const getBranchBySlugViewWebService = async (branchSlug, selectedFieldId, select
     const dateSelected = listDate.find((item) => item.selected == true)
 
     // Tìm ra khoảng thời gian được chọn
-    const listTime = await getListSelectedTimesService(branch._id, selectedTimeId,selectedDate,selectedFieldId)
+    const listTime = await getListSelectedTimesService(branch._id, selectedTimeId, selectedDate, selectedFieldId)
     // lấy khoảng giá của sân và ngày đó
     const day = dateSelected ? dateSelected.dayNumber : dayjs().day()
     let rangePrices = []
@@ -164,7 +196,8 @@ const getBranchBySlugViewWebService = async (branchSlug, selectedFieldId, select
 
 const getListFieldAndSelectedFieldService = async (branchId, selectedFieldId) => {
     const fields = await FieldModel.find({
-        branchId: branchId
+        branchId: branchId,
+        deletedAt: null
     })
 
     if (fields.length == 0) {
@@ -219,11 +252,11 @@ const getListDateAndSelectedDateService = async (selectedDate, branchId, selectF
         const day = date.day()
         const formatDate = date.format('DD-MM-YYYY')
         let disabled = false
-        
+
         // Nếu có field và time, kiểm tra disable theo ngày đã đặt
         if (selectFieldId && timeId) {
             if (checkBookings.length > 0) {
-                const formatDate2 =  date.format('YYYY-MM-DD')
+                const formatDate2 = date.format('YYYY-MM-DD')
                 disabled = checkBookings.includes(formatDate2)
             }
         }
@@ -240,7 +273,7 @@ const getListDateAndSelectedDateService = async (selectedDate, branchId, selectF
     return next7Days
 }
 
-const getListSelectedTimesService = async (branchId, selectedTimeId,date,fieldId) => {
+const getListSelectedTimesService = async (branchId, selectedTimeId, date, fieldId) => {
     const selectedTimes = await SelectedTimeBranchModel.find({ branchId: branchId, deletedAt: null })
     if (selectedTimes.length == 0) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Chưa có khoảng thời gian nào')
@@ -307,9 +340,24 @@ const checkBookingService = async (fieldId, date, timeId) => {
     if (checkBooking) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Đã tồn tại lịch đặt sân này')
     }
+
+    const field = await FieldModel.findOne({
+        _id: fieldId,
+        deletedAt: null
+    })
+    if (!field) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Sân bóng không tồn tại')
+    }
     const timeSelected = await SelectedTimeBranchModel.findById(timeId)
     if (!timeSelected) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Khoảng thời gian không tồn tại')
+    }
+    // Sau khi kiểm tra timeSelected:
+    const now = dayjs(); // Thời điểm hiện tại
+    const bookingStart = dayjs(date).startOf('day').add(Number(timeSelected.startTime + 5), 'minute'); // Thời điểm bắt đầu ca đặt
+
+    if (now.isAfter(bookingStart)) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Thời gian đặt sân đã quá giờ cho phép');
     }
     return {
         fieldId: fieldId,
@@ -318,6 +366,7 @@ const checkBookingService = async (fieldId, date, timeId) => {
         dayNumber: dayjs(date).day()
     }
 }
+
 export default {
     createBranchService,
     getAllBranchService,

@@ -27,8 +27,17 @@ const createFieldService = async (data) => {
     }
 }
 
-const getAllFieldService = async() => {
+const getAllFieldService = async(page = 1, limit = 1) => {
+    const skip = (page - 1) * limit;
+     // Đếm tổng số sân chưa bị xóa
+    const total = await FieldModel.countDocuments({ deletedAt: null });
+    const totalPages = Math.ceil(total / limit);
     const fields = await FieldModel.aggregate([
+        {
+            $match: {
+                deletedAt: null // Lọc các sân bóng chưa bị xóa
+            }
+        },
         {
             $lookup:{
                 from: 'range_price_fields',
@@ -56,10 +65,18 @@ const getAllFieldService = async() => {
                 "branch.description":0,
                 "branch.diagramImage":0,
             }
-        }
+        },
+          { $skip: skip },     // Bỏ qua các bản ghi trước trang hiện tại
+        { $limit: limit }    // Lấy số lượng bản ghi theo limit
     ])
-
-    return fields
+     return {
+        data: fields,
+        pagination: {
+            page,
+            total,
+            totalPages
+        }
+    };
 }
 
 const getFieldByIdService = async (id) => {
@@ -152,7 +169,8 @@ const getAllOrderFieldByDateService = async (branchId, date) => {
         dayBookings: {
             $gte: startDate,
             $lte: endDate
-        }
+        },
+        statusBooking: {$ne:"unpaid"}
     })
     .populate('branchId fieldId timeId')
     .populate('userId','name');
@@ -160,10 +178,26 @@ const getAllOrderFieldByDateService = async (branchId, date) => {
     return ordersInDate;
 }
 
+const removeFieldByIdService = async (id) => {
+    console.log(id)
+    const field = await FieldModel.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
+    if (!field) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Sân bóng không tồn tại');
+    }      
+
+    await RangePriceFieldModel.updateMany(
+        { fieldId: field._id, deletedAt: null },
+        { $set: { deletedAt: new Date() } }
+    );
+
+    return field;
+}
+
 export default {
     createFieldService,
     getAllFieldService,
     getFieldByIdService,
     updateFieldService,
-    getAllOrderFieldByDateService
+    getAllOrderFieldByDateService,
+    removeFieldByIdService
 }

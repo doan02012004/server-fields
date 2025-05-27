@@ -7,6 +7,7 @@ const branchSchema = Joi.object({
     images: Joi.array().items(Joi.string().required()),
     diagramImage:Joi.string().required().trim(),
     city: Joi.string().required().trim(),
+    district: Joi.string().required().trim(),
     ward: Joi.string().required().trim(),
     description:Joi.string().required().trim(),
     phoneNumber: Joi.string().required().trim(),
@@ -17,11 +18,15 @@ const branchSchema = Joi.object({
         title:Joi.string().required().trim(),
     }),
     selectTimes: Joi.array().items(Joi.object({
+         _id: Joi.string().optional(),
         text:Joi.string().required(),
         startTime:Joi.number().required(),
         endTime:Joi.number().required(),
+        branchId:Joi.string().min(0).optional(),
+        disabled:Joi.boolean().optional(),
     })),
     rate: Joi.number().optional(),
+    status:Joi.boolean()
 })
 
 

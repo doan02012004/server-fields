@@ -59,3 +59,14 @@ export function formatDateToCustomString(date) {
 
     return `${yyyy}${MM}${dd}${HH}${mm}${ss}`;
 }
+
+export const getMonthRange = (month, year) => {
+    const now = new Date();
+    const m = parseInt(month) || now.getMonth() + 1;
+    const y = parseInt(year) || now.getFullYear();
+  
+    const start = new Date(y, m - 1, 1);
+    const end = new Date(y, m, 1);
+    return { start, end };
+  };
+

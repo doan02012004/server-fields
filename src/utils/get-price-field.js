@@ -10,7 +10,7 @@ const getPrice = (rangePrices, startTime,endTime) => {
             price += Math.floor((rangeTime < 0 ? 0: rangeTime ) * priceOfMinutes)
         }
     }
-    return price
+    return Math.round(price/1000) * 1000
 }
 
 export default getPrice
