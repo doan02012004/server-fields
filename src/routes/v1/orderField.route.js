@@ -6,7 +6,7 @@ import checkAuth from '../../middlewares/auth.middleware.js';
 const orderFieldRoute = express.Router();
 
 
-orderFieldRoute.get('/checkout',orderFieldController.getCheckoutOrderFieldController)
+orderFieldRoute.get('/checkout',checkAuth,orderFieldController.getCheckoutOrderFieldController)
 orderFieldRoute.post('/create-payment', orderFieldController.createPaymentOrderFieldController);
 orderFieldRoute.get('/vnpay-return', orderFieldController.VnpayReturnController);
 orderFieldRoute.post('/create-order', orderFieldController.createFieldOrderController);
